@@ -1,15 +1,15 @@
-import './App.css';
-import { Button, DatePicker, Space, version } from "antd";
+import Header from './components/Header'
+import Container from "./components/Container"
+import Footer from "./components/Footer"
 
+import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <h1>antd version: {version}</h1>
-      <Space>
-        <DatePicker />
-        <Button type="primary">Primary Button</Button>
-      </Space>
+    <div id='app'>
+      <Header />
+      <Container />
+      <Footer />
     </div>
   );
 }

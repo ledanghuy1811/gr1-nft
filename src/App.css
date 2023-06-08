@@ -4,3 +4,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-family: "Termina", sans-serif;
+}
+
+/* fonts face */
+@font-face {
+    font-family: Termina;
+    src: url('./assets/fonts/TerminaTest-Bold.otf');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: Termina;
+    src: url('./assets/fonts/TerminaTest-Demi.otf');
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: Termina;
+    src: url('./assets/fonts/TerminaTest-Heavy.otf');
+    font-weight: 800;
+}
+
+@font-face {
+    font-family: Termina;
+    src: url('./assets/fonts/TerminaTest-Medium.otf');
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: Termina;
+    src: url('./assets/fonts/TerminaTest-Regular.otf');
+    font-weight: 400;
+}
+
+/* header  */
+#header {
+    box-shadow: 0 0 10px 0 rgb(0 0 0 / 10%);
+}
