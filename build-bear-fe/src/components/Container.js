@@ -14,7 +14,7 @@ const Container = () => {
         },
         {
             title: "Fur",
-            type: "bear",
+            type: "bears",
             items: [
                 { value: "fur-cream", label: "Cream" },
                 { value: "fur-zombie", label: "Zombie" },
@@ -53,6 +53,7 @@ const Container = () => {
             items: [
                 { value: 'none', label: "None" },
                 { value: "halo", label: "Halo" },
+                { value: "top-hat", label: "Top Hat" },
             ],
         },
     ];
