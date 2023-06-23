@@ -57,6 +57,15 @@ html {
     box-shadow: 0 0 10px 0 rgb(0 0 0 / 10%);
 }
 
+#header :where(.css-dev-only-do-not-override-12jzuas).ant-btn-primary.ant-btn-background-ghost {
+    min-width: 140px;
+    background-color: #fff;
+}
+
+#header :where(.css-dev-only-do-not-override-12jzuas).ant-btn-primary.ant-btn-background-ghost:not(:disabled):hover {
+    opacity: 0.9;
+}
+
 #container :where(.css-dev-only-do-not-override-12jzuas).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
     height: 40px;
 }
@@ -95,4 +104,9 @@ html {
 
 #container :where(.css-dev-only-do-not-override-12jzuas).ant-btn-primary.ant-btn-background-ghost:not(:disabled):hover {
     opacity: 0.9;
+}
+
+#container .anticon-spin::before, .anticon-spin,
+#container .modal-check-icon{
+    font-size: 18px;
 }

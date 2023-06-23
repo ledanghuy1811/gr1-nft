@@ -1,13 +1,24 @@
 import { useState, useEffect, useRef } from "react";
-import { Select, Button } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
-import {default as Moralis} from 'moralis';
-import { EvmChain } from "@moralisweb3/common-evm-utils";
+import { Select, Button, Modal } from "antd";
+import {
+	DownloadOutlined,
+	LoadingOutlined,
+	CheckCircleOutlined,
+} from "@ant-design/icons";
+import Moralis from "moralis";
+import { useAccount } from "wagmi";
 
 import { selectList } from "../utils";
 
+await Moralis.start({
+  apiKey: process.env.REACT_APP_MORALIS_API_KEY,
+});
+
 const Container = () => {
+	const { isConnected } = useAccount();
 	const canvasRef = useRef();
+	const [openModal, setOpenModal] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const [bruhDetail, setBruhDetail] = useState({
 		background: "bg-white",
 		bears: "fur-cream",
@@ -60,37 +71,44 @@ const Container = () => {
 		}
 	}
 
-	const handleUploadMetadata = async () => {
-		// const Moralis = require("moralis").default;
-		// const { EvmChain } = require("@moralisweb3/common-evm-utils");
+	const handleUploadToIpfs = async (imgUrl) => {
+		setLoading(true);
 
-		await Moralis.start({
-			apiKey: process.env.REACT_APP_MORALIS_API_KEY,
+		const abiImage = [
+			{
+				path: "nft_01.png",
+				content: imgUrl,
+			},
+		];
+		const imgResponse = await Moralis.EvmApi.ipfs.uploadFolder({
+			abi: abiImage,
 		});
 
 		const metadataContent = {
 			name: "Huy-NFT",
 			description: "Huy test NFT",
-			image:
-				"https://cdn3.dhht.vn/wp-content/uploads/2023/01/30-giong-meo-noi-tieng-dep-nhat-cute-de-nuoi-va-gia-ban-bia.jpg",
+			image: imgResponse.toJSON()[0].path,
 		};
 		const encoder = new TextEncoder();
 		const utf8Bytes = encoder.encode(JSON.stringify(metadataContent));
 		const base64Metadata = btoa(String.fromCharCode.apply(null, utf8Bytes));
-
-		const abi = [
+		const abiMetadata = [
 			{
 				path: "nft_01.json",
 				content: base64Metadata,
 			},
 		];
 
-		const response = await Moralis.EvmApi.ipfs.uploadFolder({ abi });
+		const metadataResponse = await Moralis.EvmApi.ipfs.uploadFolder({
+			abi: abiMetadata,
+		});
 
-		console.log(response.toJSON());
+		setLoading(false);
+
+		console.log(metadataResponse.toJSON());
 	};
 
-	const handleProcessNft = () => {
+	const handleProcessNft = async () => {
 		if (canvasRef) {
 			var anchor = document.createElement("a");
 			anchor.href = canvasRef.current.toDataURL("image/png");
@@ -98,8 +116,11 @@ const Container = () => {
 			// console.log(anchor.href);
 			// anchor.click();
 
+			// open Modal
+			setOpenModal(true);
+
 			// upload to ipfs
-			handleUploadMetadata();
+			await handleUploadToIpfs(anchor.href);
 
 			// mint nft
 		}
@@ -146,15 +167,41 @@ const Container = () => {
 							/>
 						))}
 					</div>
-					<Button
-						ghost
-						type="primary"
-						icon={<DownloadOutlined />}
-						size="large"
-						onClick={handleProcessNft}
-					>
-						Mint
-					</Button>
+					{isConnected && (
+						<>
+							<Button
+								ghost
+								type="primary"
+								icon={<DownloadOutlined />}
+								size="large"
+								onClick={handleProcessNft}
+							>
+								Mint
+							</Button>
+							<Modal
+								title="Upload metadata to IPFS and Mint NFT"
+								centered
+								open={openModal}
+								onCancel={() => setOpenModal(false)}
+							>
+								<div className="mt-4">
+									<div className="flex gap-4 items-center">
+										{loading ? (
+											<LoadingOutlined />
+										) : (
+											<CheckCircleOutlined
+												style={{ fontSize: "18px" }}
+												className="transition-all duration-300 ease-linear"
+											/>
+										)}
+										<h1 className="mb-0 text-base font-normal">
+											Upload metadata to IPFS
+										</h1>
+									</div>
+								</div>
+							</Modal>
+						</>
+					)}
 				</div>
 			</div>
 		</div>
