@@ -1,78 +1,27 @@
-import {useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import { Select, Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
+import {default as Moralis} from 'moralis';
+import { EvmChain } from "@moralisweb3/common-evm-utils";
+
+import { selectList } from "../utils";
 
 const Container = () => {
-    const selectList = [
-        {
-            title: "Background",
-            type: "background",
-            items: [
-                { value: "bg-white", label: "White" },
-                { value: "bg-purple", label: "Purple" },
-            ],
-        },
-        {
-            title: "Fur",
-            type: "bears",
-            items: [
-                { value: "fur-cream", label: "Cream" },
-                { value: "fur-zombie", label: "Zombie" },
-            ],
-        },
-        {
-            title: "Clothes",
-            type: "clothes",
-            items: [
-                { value: 'none', label: "None" },
-                { value: "suit", label: "Suit" },
-                { value: "plaid-shirt", label: "Plaid Shirt" },
-            ],
-        },
-        {
-            title: "Mouth",
-            type: "mouth",
-            items: [
-                { value: 'none', label: "None" },
-                { value: "beard", label: "Beard" },
-                { value: "black-face-mask", label: "Black face mask" },
-            ],
-        },
-        {
-            title: "Eyes",
-            type: "eyes",
-            items: [
-                { value: 'none', label: "None" },
-                { value: "sun-glasses", label: "Sun Glasses" },
-                { value: "diamond-glasses", label: "Diamond Glasses" },
-            ],
-        },
-        {
-            title: "Head",
-            type: "head",
-            items: [
-                { value: 'none', label: "None" },
-                { value: "halo", label: "Halo" },
-                { value: "top-hat", label: "Top Hat" },
-            ],
-        },
-    ];
-
-    const canvasRef = useRef();
-    const [bruhDetail, setBruhDetail] = useState({
+	const canvasRef = useRef();
+	const [bruhDetail, setBruhDetail] = useState({
 		background: "bg-white",
 		bears: "fur-cream",
 	});
-    const [image, setImage] = useState({
+	const [image, setImage] = useState({
 		background: null,
 		bears: null,
 		clothes: null,
-        eyes: null,
+		eyes: null,
 		head: null,
 		mouth: null,
 	});
 
-    const selectBruhDetail = (type, value) => {
+	const selectBruhDetail = (type, value) => {
 		bruhDetail[type] = value;
 		setBruhDetail((prev) => {
 			prev[type] = value;
@@ -80,11 +29,11 @@ const Container = () => {
 		});
 	};
 
-    const handleImage = (type) => {
-		if (bruhDetail[type] !== 'none') {
+	const handleImage = (type) => {
+		if (bruhDetail[type] !== "none") {
 			const image = new Image();
 			image.src = `/characters/bear/${type}/${bruhDetail[type]}.png`;
-            // console.log(image);
+			// console.log(image);
 			image.onload = () => {
 				setImage((prev) => {
 					prev[type] = image;
@@ -99,7 +48,7 @@ const Container = () => {
 		}
 	};
 
-    function handleCanvas() {
+	function handleCanvas() {
 		const ctx = canvasRef.current.getContext("2d");
 
 		if (image.background && image.bears && canvasRef) {
@@ -111,16 +60,52 @@ const Container = () => {
 		}
 	}
 
-    const handleDownloadCanvas = () => {
+	const handleUploadMetadata = async () => {
+		// const Moralis = require("moralis").default;
+		// const { EvmChain } = require("@moralisweb3/common-evm-utils");
+
+		await Moralis.start({
+			apiKey: process.env.REACT_APP_MORALIS_API_KEY,
+		});
+
+		const metadataContent = {
+			name: "Huy-NFT",
+			description: "Huy test NFT",
+			image:
+				"https://cdn3.dhht.vn/wp-content/uploads/2023/01/30-giong-meo-noi-tieng-dep-nhat-cute-de-nuoi-va-gia-ban-bia.jpg",
+		};
+		const encoder = new TextEncoder();
+		const utf8Bytes = encoder.encode(JSON.stringify(metadataContent));
+		const base64Metadata = btoa(String.fromCharCode.apply(null, utf8Bytes));
+
+		const abi = [
+			{
+				path: "nft_01.json",
+				content: base64Metadata,
+			},
+		];
+
+		const response = await Moralis.EvmApi.ipfs.uploadFolder({ abi });
+
+		console.log(response.toJSON());
+	};
+
+	const handleProcessNft = () => {
 		if (canvasRef) {
 			var anchor = document.createElement("a");
 			anchor.href = canvasRef.current.toDataURL("image/png");
 			anchor.download = "bluh.png";
-			anchor.click();
+			// console.log(anchor.href);
+			// anchor.click();
+
+			// upload to ipfs
+			handleUploadMetadata();
+
+			// mint nft
 		}
 	};
 
-    useEffect(() => {
+	useEffect(() => {
 		handleImage("background");
 		handleImage("bears");
 		handleImage("clothes");
@@ -133,49 +118,47 @@ const Container = () => {
 		handleCanvas();
 	}, [image]);
 
-    return (
-        <div
-            id="container"
-            className="bg-primary-color mt-[120px] py-20 px-40 flex flex-col justify-center items-center"
-        >
-            <h1 className="text-[60px] font-black text-white mb-20">
-                BUILD-A-BRUH
-            </h1>
-            <div className="flex gap-28">
-                <canvas
-                    id="canvas"
-                    ref={canvasRef}
-                    width={450}
-                    height={450}
-                    className="bg-white"
-                ></canvas>
-                <div className="flex flex-col justify-between">
-                    <div className="flex flex-col gap-5">
-                        {selectList.map((selectItem) => (
-                            <Select
-                                key={selectItem.title}
-                                className="w-[220px]"
-                                placeholder={"Select " + selectItem.title}
-                                onChange={(val) => {
-                                    selectBruhDetail(selectItem.type, val);
-                                }}
-                                options={selectItem.items}
-                            />
-                        ))}
-                    </div>
-                    <Button
-                        ghost
-                        type="primary"
-                        icon={<DownloadOutlined />}
-                        size="large"
-                        onClick={handleDownloadCanvas}
-                    >
-                        Download
-                    </Button>
-                </div>
-            </div>
-        </div>
-    );
+	return (
+		<div
+			id="container"
+			className="bg-primary-color mt-[120px] py-20 px-40 flex flex-col justify-center items-center"
+		>
+			<h1 className="text-[60px] font-black text-white mb-20">BUILD-A-BRUH</h1>
+			<div className="flex gap-28">
+				<canvas
+					id="canvas"
+					ref={canvasRef}
+					width={450}
+					height={450}
+					className="bg-white"
+				></canvas>
+				<div className="flex flex-col justify-between">
+					<div className="flex flex-col gap-5">
+						{selectList.map((selectItem) => (
+							<Select
+								key={selectItem.title}
+								className="w-[220px]"
+								placeholder={"Select " + selectItem.title}
+								onChange={(val) => {
+									selectBruhDetail(selectItem.type, val);
+								}}
+								options={selectItem.items}
+							/>
+						))}
+					</div>
+					<Button
+						ghost
+						type="primary"
+						icon={<DownloadOutlined />}
+						size="large"
+						onClick={handleProcessNft}
+					>
+						Mint
+					</Button>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default Container;
