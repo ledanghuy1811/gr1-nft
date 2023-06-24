@@ -125,7 +125,8 @@ html {
     align-items: center;
 }
 
-#container #popup-modal :where(.css-dev-only-do-not-override-12jzuas).ant-modal-confirm .ant-modal-confirm-btns {
+:where(.css-dev-only-do-not-override-12jzuas).ant-modal .ant-modal-footer,
+:where(.css-dev-only-do-not-override-12jzuas).ant-modal-confirm .ant-modal-confirm-btns {
     display: flex;
     justify-content: end;
 }
