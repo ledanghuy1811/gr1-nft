@@ -1,34 +1,57 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-// Import the openzepplin contracts
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-// NFTee is  ERC721 signifies that the contract we are creating imports ERC721 and follows ERC721 contract from openzeppelin
-contract BruhBear is ERC721 {
-    mapping (address => bool) private list;
-    uint public tokenId;
-    address public owner;
+contract BruhBear is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
+    using Counters for Counters.Counter;
 
-    constructor() ERC721("Bruh Bear NFT", "BBN") {
-        // mint an NFT to yourself
-        // _mint(msg.sender, 1);
-        owner = msg.sender;
+    Counters.Counter private _tokenIdCounter;
+
+    constructor() ERC721("Huy NFT", "HNT") {}
+
+    function safeMint(address to, string memory uri) public {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
     }
 
-    function checkList() public view returns (bool) {
-        return list[msg.sender];
+    // The following functions are overrides required by Solidity.
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 batchSize
+    ) internal override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-    function safeMint() public {
-        require(checkList());
-
-        _safeMint(_msgSender(), tokenId);
+    function _burn(
+        uint256 tokenId
+    ) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
     }
 
-    function setCheckList(address _addr, bool _permission) public {
-        require(_msgSender() == owner);
+    function tokenURI(
+        uint256 tokenId
+    ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
+    }
 
-        list[_addr] = _permission;
+    function supportsInterface(
+        bytes4 interfaceId
+    )
+        public
+        view
+        override(ERC721, ERC721Enumerable, ERC721URIStorage)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }

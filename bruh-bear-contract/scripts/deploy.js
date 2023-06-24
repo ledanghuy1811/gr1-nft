@@ -11,8 +11,6 @@ so nftContract here is a factory for instances of our NFTee contract.
   // here we deploy the contract
   const deployedNFTContract = await nftContract.deploy();
 
-  console.log('hi');
-
   // wait for the contract to deploy
   const tx = await deployedNFTContract.deployed();
 

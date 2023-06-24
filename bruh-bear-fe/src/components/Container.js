@@ -1,24 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { Select, Button, Modal } from "antd";
-import {
-	DownloadOutlined,
-	LoadingOutlined,
-	CheckCircleOutlined,
-} from "@ant-design/icons";
-import Moralis from "moralis";
+import { Select } from "antd";
 import { useAccount } from "wagmi";
 
 import { selectList } from "../utils";
-
-await Moralis.start({
-  apiKey: process.env.REACT_APP_MORALIS_API_KEY,
-});
+import MintNFT from "./MintNFT";
 
 const Container = () => {
 	const { isConnected } = useAccount();
 	const canvasRef = useRef();
-	const [openModal, setOpenModal] = useState(false);
-	const [loading, setLoading] = useState(false);
+  const [imgUrl, setImgUrl] = useState('');
 	const [bruhDetail, setBruhDetail] = useState({
 		background: "bg-white",
 		bears: "fur-cream",
@@ -44,7 +34,6 @@ const Container = () => {
 		if (bruhDetail[type] !== "none") {
 			const image = new Image();
 			image.src = `/characters/bear/${type}/${bruhDetail[type]}.png`;
-			// console.log(image);
 			image.onload = () => {
 				setImage((prev) => {
 					prev[type] = image;
@@ -69,62 +58,14 @@ const Container = () => {
 				}
 			});
 		}
-	}
 
-	const handleUploadToIpfs = async (imgUrl) => {
-		setLoading(true);
-
-		const abiImage = [
-			{
-				path: "nft_01.png",
-				content: imgUrl,
-			},
-		];
-		const imgResponse = await Moralis.EvmApi.ipfs.uploadFolder({
-			abi: abiImage,
-		});
-
-		const metadataContent = {
-			name: "Huy-NFT",
-			description: "Huy test NFT",
-			image: imgResponse.toJSON()[0].path,
-		};
-		const encoder = new TextEncoder();
-		const utf8Bytes = encoder.encode(JSON.stringify(metadataContent));
-		const base64Metadata = btoa(String.fromCharCode.apply(null, utf8Bytes));
-		const abiMetadata = [
-			{
-				path: "nft_01.json",
-				content: base64Metadata,
-			},
-		];
-
-		const metadataResponse = await Moralis.EvmApi.ipfs.uploadFolder({
-			abi: abiMetadata,
-		});
-
-		setLoading(false);
-
-		console.log(metadataResponse.toJSON());
-	};
-
-	const handleProcessNft = async () => {
-		if (canvasRef) {
+    if (canvasRef) {
 			var anchor = document.createElement("a");
 			anchor.href = canvasRef.current.toDataURL("image/png");
 			anchor.download = "bluh.png";
-			// console.log(anchor.href);
-			// anchor.click();
-
-			// open Modal
-			setOpenModal(true);
-
-			// upload to ipfs
-			await handleUploadToIpfs(anchor.href);
-
-			// mint nft
-		}
-	};
+      setImgUrl(anchor.href);
+    }
+	}
 
 	useEffect(() => {
 		handleImage("background");
@@ -167,41 +108,7 @@ const Container = () => {
 							/>
 						))}
 					</div>
-					{isConnected && (
-						<>
-							<Button
-								ghost
-								type="primary"
-								icon={<DownloadOutlined />}
-								size="large"
-								onClick={handleProcessNft}
-							>
-								Mint
-							</Button>
-							<Modal
-								title="Upload metadata to IPFS and Mint NFT"
-								centered
-								open={openModal}
-								onCancel={() => setOpenModal(false)}
-							>
-								<div className="mt-4">
-									<div className="flex gap-4 items-center">
-										{loading ? (
-											<LoadingOutlined />
-										) : (
-											<CheckCircleOutlined
-												style={{ fontSize: "18px" }}
-												className="transition-all duration-300 ease-linear"
-											/>
-										)}
-										<h1 className="mb-0 text-base font-normal">
-											Upload metadata to IPFS
-										</h1>
-									</div>
-								</div>
-							</Modal>
-						</>
-					)}
+					{isConnected && <MintNFT imgUrl={imgUrl} />}
 				</div>
 			</div>
 		</div>

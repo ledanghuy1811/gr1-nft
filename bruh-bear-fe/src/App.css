@@ -99,6 +99,7 @@ html {
 }
 
 #container :where(.css-dev-only-do-not-override-12jzuas).ant-btn-primary.ant-btn-background-ghost {
+    width: 100%;
     background-color: #fff;
 }
 
