@@ -8,8 +8,7 @@ import logoHeader from "../assets/image/logo-header.svg";
 const Header = () => {
 	const { isConnected } = useAccount();
 
-	const { connect, connectors } =
-		useConnect();
+	const { connect, connectors } = useConnect();
 	const connectorType = connectors[0];
 	const { disconnect } = useDisconnect();
 

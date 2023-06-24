@@ -111,3 +111,22 @@ html {
 #container .modal-check-icon{
     font-size: 18px;
 }
+
+#container #popup-modal :where(.css-dev-only-do-not-override-12jzuas)[class^="ant-btn"], :where(.css-dev-only-do-not-override-12jzuas)[class*=" ant-btn"] {
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#container #popup-modal :where(.css-dev-only-do-not-override-12jzuas).ant-btn-primary {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#container #popup-modal :where(.css-dev-only-do-not-override-12jzuas).ant-modal-confirm .ant-modal-confirm-btns {
+    display: flex;
+    justify-content: end;
+}
+

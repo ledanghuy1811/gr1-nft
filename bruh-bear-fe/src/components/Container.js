@@ -7,8 +7,9 @@ import MintNFT from "./MintNFT";
 
 const Container = () => {
 	const { isConnected } = useAccount();
+
 	const canvasRef = useRef();
-  const [imgUrl, setImgUrl] = useState('');
+	const [imgUrl, setImgUrl] = useState("");
 	const [bruhDetail, setBruhDetail] = useState({
 		background: "bg-white",
 		bears: "fur-cream",
@@ -59,12 +60,12 @@ const Container = () => {
 			});
 		}
 
-    if (canvasRef) {
+		if (canvasRef) {
 			var anchor = document.createElement("a");
 			anchor.href = canvasRef.current.toDataURL("image/png");
 			anchor.download = "bluh.png";
-      setImgUrl(anchor.href);
-    }
+			setImgUrl(anchor.href);
+		}
 	}
 
 	useEffect(() => {
@@ -108,7 +109,7 @@ const Container = () => {
 							/>
 						))}
 					</div>
-					{isConnected && <MintNFT imgUrl={imgUrl} />}
+					{isConnected && <MintNFT imgUrl={imgUrl} imageAttrs={image} />}
 				</div>
 			</div>
 		</div>

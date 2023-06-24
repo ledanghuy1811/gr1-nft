@@ -22,7 +22,7 @@ const config = createConfig({
 		new MetaMaskConnector({
 			chains,
 			options: {
-        UNSTABLE_shimOnConnectSelectAccount: true,
+				UNSTABLE_shimOnConnectSelectAccount: true,
 			},
 		}),
 	],

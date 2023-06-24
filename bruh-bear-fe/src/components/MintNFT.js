@@ -11,16 +11,26 @@ import {
 	useContractWrite,
 	useAccount,
 	useWaitForTransaction,
+	useContractRead,
 } from "wagmi";
 
 import BruhBear from "../abis/BruhBear.json";
 
-const MintNFT = ({ imgUrl }) => {
+const MintNFT = ({ imgUrl, imageAttrs }) => {
+	const { address } = useAccount();
+	const { data: readData, isLoading: readDataLoading, refetch } = useContractRead({
+		address: process.env.REACT_APP_CONTRACT_ADDRESS,
+		abi: BruhBear.abi,
+		functionName: "getTokenId",
+		from: address,
+	});
+
+	console.log(Number(readData), readDataLoading);
+
 	const [openModal, setOpenModal] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [uriPath, setUriPath] = useState("");
 
-	const { address } = useAccount();
 	const { data, write } = useContractWrite({
 		address: process.env.REACT_APP_CONTRACT_ADDRESS,
 		abi: BruhBear.abi,
@@ -28,7 +38,7 @@ const MintNFT = ({ imgUrl }) => {
 		args: [address, uriPath],
 		from: address,
 	});
-	const { isLoading, isSuccess } = useWaitForTransaction({
+	const { isLoading, isSuccess, isError, error } = useWaitForTransaction({
 		hash: data?.hash,
 	});
 
@@ -38,7 +48,7 @@ const MintNFT = ({ imgUrl }) => {
 
 		const abiImage = [
 			{
-				path: "nft_01.png",
+				path: `hnft_${Number(readData) + 1}.png`,
 				content: imgUrl,
 			},
 		];
@@ -47,16 +57,17 @@ const MintNFT = ({ imgUrl }) => {
 		});
 
 		const metadataContent = {
-			name: "Huy-NFT",
-			description: "Huy test NFT",
+			name: `Huy-NFT-${Number(readData) + 1}`,
+			description: `Huy-NFT collection Number ${Number(readData) + 1}`,
 			image: imgResponse.toJSON()[0].path,
+			attributes: imageAttrs,
 		};
 		const encoder = new TextEncoder();
 		const utf8Bytes = encoder.encode(JSON.stringify(metadataContent));
 		const base64Metadata = btoa(String.fromCharCode.apply(null, utf8Bytes));
 		const abiMetadata = [
 			{
-				path: "nft_01.json",
+				path: `hnft_${Number(readData) + 1}.json`,
 				content: base64Metadata,
 			},
 		];
@@ -74,10 +85,70 @@ const MintNFT = ({ imgUrl }) => {
 		write();
 	};
 
+	const openSuccessModal = () => {
+		Modal.success({
+			title: "You mint an NFT successfully",
+			width: "600px",
+			content: (
+				<div id="popup-modal" className="flex flex-col gap-3 mb-5">
+					<h1 className="mb-0 text-base font-normal">
+						Your transaction hash: {data?.hash}
+					</h1>
+					<div className="grid grid-cols-2 gap-10">
+						<Button
+							href={`https://goerli.etherscan.io/tx/${data?.hash}`}
+							target="_blank"
+							type="primary"
+						>
+							View Transaction
+						</Button>
+						<Button
+							href={`https://testnets.opensea.io/assets/goerli/${
+								process.env.REACT_APP_CONTRACT_ADDRESS
+							}/${Number(readData)}`}
+							target="_blank"
+							type="primary"
+						>
+							View NFT
+						</Button>
+					</div>
+				</div>
+			),
+		});
+		setOpenModal(false);
+	};
+
+	const openErrorModal = () => {
+		Modal.error({
+			title: "Mint NFT error",
+			content: <div>Error: {error}</div>,
+		});
+	};
+
 	useEffect(() => {
-		console.log(data)
-		isSuccess && setOpenModal(false);
-	}, [isSuccess])
+		let timerId;
+		if (isSuccess) {
+			setOpenModal(false);
+			refetch();
+			timerId = setTimeout(() => {
+				openSuccessModal();
+			}, 500);
+		}
+
+		return () => clearTimeout(timerId);
+	}, [isSuccess]);
+
+	useEffect(() => {
+		let timerId;
+		if (isError) {
+			setOpenModal(false);
+			timerId = setTimeout(() => {
+				openErrorModal();
+			}, 500);
+		}
+
+		return () => clearTimeout(timerId);
+	}, [isError]);
 
 	return (
 		<div className="w-full">

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Moralis from 'moralis';
 
 import Header from "./components/Header";
@@ -5,7 +6,6 @@ import Container from "./components/Container";
 import Footer from "./components/Footer";
 
 import "./App.css";
-import { useEffect } from "react";
 
 const App = () => {
   useEffect(() => {
