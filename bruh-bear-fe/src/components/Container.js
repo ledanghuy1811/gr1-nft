@@ -109,7 +109,7 @@ const Container = () => {
 							/>
 						))}
 					</div>
-					{isConnected && <MintNFT imgUrl={imgUrl} imageAttrs={image} />}
+					{isConnected && <MintNFT imgUrl={imgUrl} imageAttrs={bruhDetail} />}
 				</div>
 			</div>
 		</div>
