@@ -21,7 +21,7 @@ contract BruhBear is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         _setTokenURI(tokenId, uri);
     }
 
-    function getTokenId() public returns(uint256) {
+    function getTokenId() public view returns(uint256) {
         return _tokenIdCounter.current();
     }
 
